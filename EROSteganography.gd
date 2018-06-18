@@ -8,7 +8,7 @@ const BITS_PER_BYTE = 2 # How many bits we take from each one, 1 is the least si
 const STEGANO_FORMAT_VERSION = 1
 const DATA_OFFSET = 0 # Offset for where the data starts in the image
 
-func store_string_in_image(image, string):
+static func store_string_in_image(image, string):
 	var payload = PoolByteArray(STEGANO_MAGIC_NUMBER)
 	
 	var text_binary = string.to_utf8()
@@ -28,8 +28,10 @@ func store_string_in_image(image, string):
 	
 	return store_data_in_image(image, payload)
 
+
+
 # Data should be a PoolByteArray
-func store_data_in_image(image, data):
+static func store_data_in_image(image, data):
 	image.convert(Image.FORMAT_RGB8)
 	var image_data = image.get_data()
 	var writing_mask = 0
@@ -51,7 +53,7 @@ func store_data_in_image(image, data):
 	final_image.create_from_data(image.get_width(), image.get_height(), false, Image.FORMAT_RGB8, image_data)
 	return final_image
 	
-func get_steganographic_data_from_image(image):
+static func get_steganographic_data_from_image(image):
 	image.convert(Image.FORMAT_RGB8)
 	var extracted_data = PoolByteArray()
 	var image_data = image.get_data()
@@ -106,12 +108,11 @@ func get_steganographic_data_from_image(image):
 		var compressed_data = extracted_data.subarray(magic_number_position+6, extracted_data.size()-1-STEGANO_CHUNK_END.size())
 		
 		var uncompressed_data = compressed_data.decompress(uncompressed_size, File.COMPRESSION_ZSTD).get_string_from_utf8()
-		print(uncompressed_size)
 		return uncompressed_data
 	else:
 		return ERR_FILE_CORRUPT
 		
-func get_steganographic_data_from_file(image_path):
+static func get_steganographic_data_from_file(image_path):
 	var file = File.new()
 	if file.file_exists(image_path):
 		var image = Image.new()
